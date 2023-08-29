@@ -1,5 +1,4 @@
 #include "binary_trees.h"
-#include <math.h>
 
 /**
  * binary_tree_is_leaf - checks if a node is a leaf.
@@ -59,13 +58,17 @@ size_t binary_tree_size(const binary_tree_t *tree)
 */
 int binary_tree_is_perfect(const binary_tree_t *tree)
 {
+	size_t total_nodes;
+	int i;
 	/**
 	 * is a single node w/o children a perfect tree?
 	 * this function assume it to be so.
 	*/
 	if (!tree)
 		return (0);
-
-	return (binary_tree_size(tree)
-		== pow(2, binary_tree_height(tree) + 1) - 1);
+	total_nodes = 1;
+	for (i = binary_tree_height(tree) + 1; i > 0; i--)
+		total_nodes *= 2;
+	total_nodes--;
+	return (binary_tree_size(tree) == total_nodes);
 }
