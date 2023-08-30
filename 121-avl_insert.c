@@ -10,6 +10,7 @@ avl_t *rotate_right(avl_t *node)
 {
 	avl_t *tmp = node->left;
 	avl_t *tmp2 = tmp->right;
+
 	tmp->right = node;
 	node->left = tmp2;
 	tmp->parent = node->parent;
@@ -29,6 +30,7 @@ avl_t *rotate_left(avl_t *node)
 {
 	avl_t *tmp = node->right;
 	avl_t *tmp2 = tmp->left;
+
 	tmp->left = node;
 	node->right = tmp2;
 	tmp->parent = node->parent;
@@ -64,6 +66,7 @@ avl_t *insert_node(avl_t **tree, avl_t *parent, avl_t **new, int value)
 	else
 		return (*tree);
 	int bal = binary_tree_balance(*tree);
+
 	if (bal > 1 && value < (*tree)->left->n)
 		*tree = rotate_right(*tree);
 	else if (bal > 1 && value > (*tree)->left->n)
