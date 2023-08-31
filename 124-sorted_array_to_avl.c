@@ -10,10 +10,13 @@
  */
 avl_t *to_avl_helper(int *arr, int start, int end)
 {
+	int mid;
+	avl_t *root;
+
 	if (start > end)
 		return (NULL);
-	int mid = (start + end) / 2;
-	avl_t *root = binary_tree_node(NULL, arr[mid]);
+	mid = (start + end) / 2;
+	root = binary_tree_node(NULL, arr[mid]);
 
 	root->left = to_avl_helper(arr, start, mid - 1);
 	root->right = to_avl_helper(arr, mid + 1, end);
