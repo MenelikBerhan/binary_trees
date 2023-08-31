@@ -55,7 +55,8 @@ size_t binary_tree_height(const binary_tree_t *tree)
  * @tree: a pointer to the root node of the tree to count the number of leaves
  * @height: height of the tree
  *
- * Return: the number of leaves in a binary tree or 0 if tree is NULL
+ * Return: the number of leaves at last level in a binary tree
+ * or 0 if tree is NULL
 */
 size_t leaves_at_bottom(const binary_tree_t *tree, size_t height)
 {
@@ -94,7 +95,7 @@ int binary_tree_is_complete(const binary_tree_t *tree)
 	height = binary_tree_height(tree);
 	size = binary_tree_size(tree);
 	nodes = 1;
-	for (i = binary_tree_height(tree) + 1; i > 0; i--)
+	for (i = height + 1; i > 0; i--)
 		nodes *= 2;
 	if (--nodes == size)
 		return (1);
@@ -106,14 +107,15 @@ int binary_tree_is_complete(const binary_tree_t *tree)
 	nxt_leaf = tree_tmp->left;
 	if (!nxt_leaf)
 		return (0);
+	for (j = 0, max_leaves = 1; j < height; j++)
+		max_leaves *= 2;
+	/* go through leaves and check if all are to the left */
 	for (i = 1; i < leaves; i++)
 	{
 		if (i % 2 != 0)
 			nxt_leaf = nxt_leaf->parent->right;
 		else
 		{
-			for (j = 0, max_leaves = 1; j < height; j++)
-				max_leaves *= 2;
 			j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
 			for (j = 0; j < j_limit + 2; j++)
 				nxt_leaf = nxt_leaf->parent;

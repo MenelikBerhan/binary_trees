@@ -56,10 +56,10 @@ size_t binary_tree_depth(const binary_tree_t *tree)
 }
 
 /**
- * level_order_helper - goes through a binary tree using pre-order traversal.
+ * level_order_helper - goes through a binary tree using pre-order traversal
+ * and calls `func` with n field of node if node is at depth `depth`
  * @tree: a pointer to the root node of the tree to traverse
- * @func: a pointer to a function to call for each node. The value in the
- * node will be passed as a parameter to this function.
+ * @func: a pointer to a function to call for node at given depth
  * @depth: depth of nodes to call func for
  *
  * If tree or func is NULL, does nothing.
@@ -87,7 +87,6 @@ void level_order_helper(const binary_tree_t *tree, void (*func)(int),
 void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int))
 {
 	size_t depth, height;
-	/* const binary_tree_t *temp = tree, *nxt_start; */
 
 	if (!tree || !func)
 		return;
