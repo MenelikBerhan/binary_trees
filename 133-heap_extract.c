@@ -1,24 +1,53 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_node - creates a binary tree node.
- * @parent: pointer to parent node
- * @value: value of node
+ * binary_tree_height1 - measures the height of a binary tree
+ * @tree: a pointer to the root node of the tree to measure the height.
  *
- * Return: pointer to the newly created node or NULL if there is failure.
+ * Return: the height of binary tree or 0 if tree is NULL.
 */
-binary_tree_t *binary_tree_node(binary_tree_t *parent, int value)
+size_t binary_tree_height1(const binary_tree_t *tree)
 {
-	binary_tree_t *new_node;
+	size_t h_left, h_right;
 
-	new_node = malloc(sizeof(binary_tree_t));
-	if (!new_node)
-		return (NULL);
-	new_node->n = value;
-	new_node->parent = parent;
-	new_node->right = new_node->left = NULL;
+	if (!tree || (!tree->left && !tree->right))
+		return (0);
+	h_left = h_right = 0;
+	if (tree->left)
+		h_left = 1 + binary_tree_height1(tree->left);
+	if (tree->right)
+		h_right = 1 + binary_tree_height1(tree->right);
 
-	return (new_node);
+	return (h_left > h_right ? h_left : h_right);
+}
+
+/**
+ * leaves_at_bottom1 - counts the leaves in a binary tree at last level
+ * @tree: a pointer to the root node of the tree to count the number of leaves
+ * @height: height of the tree
+ *
+ * Return: the number of leaves at last level in a binary tree
+ * or 0 if tree is NULL
+*/
+size_t leaves_at_bottom1(const binary_tree_t *tree, size_t height)
+{
+	size_t depth = 0;
+	binary_tree_t *temp = (binary_tree_t *) tree;
+
+	if (!tree)
+		return (0);
+
+	while (temp->parent)
+	{
+		depth++;
+		temp = temp->parent;
+	}
+
+	if ((!tree->left && !tree->right) && depth == height)
+		return (1);
+
+	return (leaves_at_bottom1(tree->left, height)
+		+ leaves_at_bottom1(tree->right, height));
 }
 
 /**
@@ -32,8 +61,8 @@ heap_t *find_last_node(heap_t **root)
 	heap_t *temp;
 	size_t bottom_leaves, height, i, j, j_limit, max_leaves;
 
-	height = binary_tree_height(*root);
-	bottom_leaves = leaves_at_bottom(*root, height);
+	height = binary_tree_height1(*root);
+	bottom_leaves = leaves_at_bottom1(*root, height);
 	temp = *root;
 	for (i = 0; i < height; i++)
 		temp = temp->left;
