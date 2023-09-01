@@ -1,5 +1,4 @@
 #include "binary_trees.h"
-#include <stdio.h>
 
 /**
  * binary_tree_height - measures the height of a binary tree
@@ -77,7 +76,7 @@ heap_t *find_insert_node(heap_t **root)
 	{
 		if (i % 2 != 0)
 			temp = temp->parent->right;
-		else
+		else if (i % 4 == 0)
 		{
 			j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
 			for (j = 0; j < j_limit + 2; j++)
@@ -86,10 +85,13 @@ heap_t *find_insert_node(heap_t **root)
 			for (j = 0; j < j_limit + 1; j++)
 				temp = temp->left;
 		}
+		else
+			temp = temp->parent->parent->right->left;
 	}
 	if (temp->parent->left == temp)
 		return (temp->parent);
-
+	if (i % 4 != 0)
+		return (temp->parent->parent->right);
 	j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
 	for (j = 0; j < j_limit + 2; j++)
 		temp = temp->parent;
@@ -97,7 +99,6 @@ heap_t *find_insert_node(heap_t **root)
 	for (j = 0; j < j_limit; j++)
 		temp = temp->left;
 	return (temp);
-
 }
 
 /**
