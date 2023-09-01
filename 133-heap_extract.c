@@ -224,13 +224,14 @@ int heap_extract(heap_t **root)
 	if (!root || !(*root))
 		return (0);
 
+	extracted = (*root)->n;
 	last_node = find_last_node(root);
 	if (*root == last_node)
 	{
 		free(*root);
-		return (0);
+		*root = NULL;
+		return (extracted);
 	}
-	extracted = (*root)->n;
 
 	heap_set_root(root, last_node);
 	temp = *root;
