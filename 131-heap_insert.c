@@ -1,35 +1,14 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_height - measures the height of a binary tree
- * @tree: a pointer to the root node of the tree to measure the height.
- *
- * Return: the height of binary tree or 0 if tree is NULL.
-*/
-size_t binary_tree_height(const binary_tree_t *tree)
-{
-	size_t h_left, h_right;
-
-	if (!tree || (!tree->left && !tree->right))
-		return (0);
-	h_left = h_right = 0;
-	if (tree->left)
-		h_left = 1 + binary_tree_height(tree->left);
-	if (tree->right)
-		h_right = 1 + binary_tree_height(tree->right);
-
-	return (h_left > h_right ? h_left : h_right);
-}
-
-/**
- * leaves_at_bottom - counts the leaves in a binary tree at last level
+ * leaves_at_bottomi - counts the leaves in a binary tree at last level
  * @tree: a pointer to the root node of the tree to count the number of leaves
  * @height: height of the tree
  *
  * Return: the number of leaves at last level in a binary tree
  * or 0 if tree is NULL
 */
-size_t leaves_at_bottom(const binary_tree_t *tree, size_t height)
+size_t leaves_at_bottomi(const binary_tree_t *tree, size_t height)
 {
 	size_t depth = 0;
 	binary_tree_t *temp = (binary_tree_t *) tree;
@@ -46,8 +25,8 @@ size_t leaves_at_bottom(const binary_tree_t *tree, size_t height)
 	if ((!tree->left && !tree->right) && depth == height)
 		return (1);
 
-	return (leaves_at_bottom(tree->left, height)
-		+ leaves_at_bottom(tree->right, height));
+	return (leaves_at_bottomi(tree->left, height)
+		+ leaves_at_bottomi(tree->right, height));
 }
 
 /**
@@ -62,11 +41,10 @@ heap_t *find_insert_node(heap_t **root)
 	heap_t *temp;
 	size_t bottom_leaves, height, i, j, j_limit, max_leaves;
 
-	height = binary_tree_height(*root);
-	bottom_leaves = leaves_at_bottom(*root, height);
-	temp = *root;
-	for (i = 0; i < height; i++)
+	for (height = 0, temp = *root; temp && temp->left; height++)
 		temp = temp->left;
+	bottom_leaves = leaves_at_bottomi(*root, height);
+
 	for (j = 0, max_leaves = 1; j < height; j++)
 		max_leaves *= 2;
 	if (bottom_leaves == max_leaves)
@@ -76,27 +54,28 @@ heap_t *find_insert_node(heap_t **root)
 	{
 		if (i % 2 != 0)
 			temp = temp->parent->right;
-		else if (i % 4 == 0)
+		else
 		{
-			j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
-			for (j = 0; j < j_limit + 2; j++)
+			j = i <= max_leaves / 2 ? i : max_leaves - i;
+			for (j_limit = 1; j != 1 && j % 2 == 0; j /= 2)
+				j_limit++;
+			for (j = 0; j < j_limit; j++)
 				temp = temp->parent;
 			temp = temp->right;
-			for (j = 0; j < j_limit + 1; j++)
+			for (j = 0; j < j_limit - 1; j++)
 				temp = temp->left;
 		}
-		else
-			temp = temp->parent->parent->right->left;
 	}
 	if (temp->parent->left == temp)
 		return (temp->parent);
-	if (i % 4 != 0)
-		return (temp->parent->parent->right);
-	j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
-	for (j = 0; j < j_limit + 2; j++)
+
+	j = i <= max_leaves / 2 ? i : max_leaves - i;
+	for (j_limit = 1; j != 1 && j % 2 == 0; j /= 2)
+		j_limit++;
+	for (j = 0; j < j_limit; j++)
 		temp = temp->parent;
 	temp = temp->right;
-	for (j = 0; j < j_limit; j++)
+	for (j = 0; j < j_limit - 2; j++)
 		temp = temp->left;
 	return (temp);
 }
@@ -110,13 +89,13 @@ heap_t *find_insert_node(heap_t **root)
  */
 void heap_insert_helper(heap_t **root, heap_t *new_node)
 {
-	heap_t *node_parent, *prnt_lft, *prnt_right;
+	heap_t *node_parent, *prnt_lft, *prnt_rght;
 
 	while (new_node->parent && (new_node->n > new_node->parent->n))
 	{
 		node_parent = new_node->parent;
 		prnt_lft = node_parent->left;
-		prnt_right = node_parent->right;
+		prnt_rght = node_parent->right;
 		node_parent->left = new_node->left;
 		node_parent->right = new_node->right;
 		if (new_node->left)
@@ -127,9 +106,9 @@ void heap_insert_helper(heap_t **root, heap_t *new_node)
 		if (prnt_lft == new_node)
 		{
 			new_node->left = node_parent;
-			new_node->right = prnt_right;
-			if (prnt_right)
-				prnt_right->parent = new_node;
+			new_node->right = prnt_rght;
+			if (prnt_rght)
+				prnt_rght->parent = new_node;
 		}
 		else
 		{

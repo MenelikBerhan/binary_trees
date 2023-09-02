@@ -1,56 +1,6 @@
 #include "binary_trees.h"
 
 /**
- * binary_tree_height1 - measures the height of a binary tree
- * @tree: a pointer to the root node of the tree to measure the height.
- *
- * Return: the height of binary tree or 0 if tree is NULL.
-*/
-size_t binary_tree_height1(const binary_tree_t *tree)
-{
-	size_t h_left, h_right;
-
-	if (!tree || (!tree->left && !tree->right))
-		return (0);
-	h_left = h_right = 0;
-	if (tree->left)
-		h_left = 1 + binary_tree_height1(tree->left);
-	if (tree->right)
-		h_right = 1 + binary_tree_height1(tree->right);
-
-	return (h_left > h_right ? h_left : h_right);
-}
-
-/**
- * leaves_at_bottom1 - counts the leaves in a binary tree at last level
- * @tree: a pointer to the root node of the tree to count the number of leaves
- * @height: height of the tree
- *
- * Return: the number of leaves at last level in a binary tree
- * or 0 if tree is NULL
-*/
-size_t leaves_at_bottom1(const binary_tree_t *tree, size_t height)
-{
-	size_t depth = 0;
-	binary_tree_t *temp = (binary_tree_t *) tree;
-
-	if (!tree)
-		return (0);
-
-	while (temp->parent)
-	{
-		depth++;
-		temp = temp->parent;
-	}
-
-	if ((!tree->left && !tree->right) && depth == height)
-		return (1);
-
-	return (leaves_at_bottom1(tree->left, height)
-		+ leaves_at_bottom1(tree->right, height));
-}
-
-/**
  * find_last_node - finds last node on the last level in Max Binary Heap
  * @root: a double pointer to the root node of the Heap to insert the value
  *
@@ -58,35 +8,37 @@ size_t leaves_at_bottom1(const binary_tree_t *tree, size_t height)
  */
 heap_t *find_last_node(heap_t **root)
 {
-	heap_t *temp;
-	size_t bottom_leaves, height, i, j, j_limit, max_leaves;
+	heap_t *temp, *leaf;
+	size_t height, i, j, j_limit, max_leaves;
 
-	height = binary_tree_height1(*root);
-	bottom_leaves = leaves_at_bottom1(*root, height);
-	temp = *root;
-	for (i = 0; i < height; i++)
-		temp = temp->left;
+	for (height = 0, leaf = *root; leaf && leaf->left; height++)
+		leaf = leaf->left;
+
 	for (j = 0, max_leaves = 1; j < height; j++)
 		max_leaves *= 2;
 
-
-	for (i = 1; i < bottom_leaves; i++)
+	temp = leaf;
+	for (i = 1; i < max_leaves; i++)
 	{
 		if (i % 2 != 0)
 			temp = temp->parent->right;
-		else if (i % 4 == 0)
+		else
 		{
-			j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
-			for (j = 0; j < j_limit + 2; j++)
+			j = i <= max_leaves / 2 ? i : max_leaves - i;
+			for (j_limit = 1; j != 1 && j % 2 == 0; j /= 2)
+				j_limit++;
+			for (j = 0; j < j_limit; j++)
 				temp = temp->parent;
 			temp = temp->right;
-			for (j = 0; j < j_limit + 1; j++)
+			for (j = 0; j < j_limit - 1; j++)
 				temp = temp->left;
 		}
+		if (temp)
+			leaf = temp;
 		else
-			temp = temp->parent->parent->right->left;
+			break;
 	}
-	return (temp);
+	return (leaf);
 }
 
 /**
@@ -101,7 +53,6 @@ heap_t *find_last_node(heap_t **root)
  * @lf: bool value. 1 if last_node is to be switched with left child,
  * or 0 if last_node is to be switched with right child
  *
- * Return: the value stored in the root node
  */
 void heap_extract_helper2(heap_t **root, heap_t *last_node,	heap_t *left,
 	heap_t *right, heap_t *l_node, heap_t *r_node, int lf)
@@ -134,7 +85,6 @@ void heap_extract_helper2(heap_t **root, heap_t *last_node,	heap_t *left,
  * @root: a double pointer to the root node of heap
  * @last_node: the last node set as root after extraction
  *
- * Return: the value stored in the root node
  */
 void heap_extract_helper(heap_t **root, heap_t *last_node)
 {
@@ -143,15 +93,18 @@ void heap_extract_helper(heap_t **root, heap_t *last_node)
 
 	if ((!last_node->left) || ((last_node->right) && ((last_node->left->n
 			<= last_node->n) && (last_node->right->n <= last_node->n)))
-			|| ((last_node->left->n <= last_node->n)))
+			|| (!last_node->right && (last_node->left->n <= last_node->n)))
 		return;
+
 	l_node = last_node->left;
 	r_node = last_node->right;
 	n_left = last_node->left ? last_node->left->n : 0;
 	n_right = last_node->right ? last_node->right->n : 0;
+
 	lf = n_left >= n_right ? 1 : 0;
 	left = lf ? last_node->left->left : last_node->right->left;
 	right = lf ? last_node->left->right : last_node->right->right;
+
 	if (lf)
 	{
 		last_node->left->right = last_node->right;
@@ -192,14 +145,14 @@ void heap_set_root(heap_t **root, heap_t *last_node)
 	}
 	else
 	{
+		last_node->left = (*root)->left;
 		if ((*root)->left)
 		{
-			last_node->left = (*root)->left;
 			(*root)->left->parent = last_node;
 		}
+		last_node->right = (*root)->right;
 		if ((*root)->right)
 		{
-			last_node->right = (*root)->right;
 			(*root)->right->parent = last_node;
 		}
 	}

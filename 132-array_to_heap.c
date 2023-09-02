@@ -13,6 +13,8 @@ heap_t *array_to_heap(int *array, size_t size)
 	size_t i;
 	heap_t *root = NULL;
 
+	if (!array || size == 0)
+		return (NULL);
 	for (i = 0; i < size; i++)
 	{
 		heap_insert(&root, array[i]);

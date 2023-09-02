@@ -75,13 +75,12 @@ size_t leaves_at_bottom(const binary_tree_t *tree, size_t height)
 int binary_tree_is_complete(const binary_tree_t *tree)
 {
 	binary_tree_t *tree_tmp = (binary_tree_t *) tree, *nxt_leaf;
-	size_t height, leaves, nodes, size, i, j, j_limit, max_leaves;
+	size_t height, leaves, nodes = 1, size, i, j, j_limit, max_leaves;
 
 	if (!tree_tmp)
 		return (0);
 	height = binary_tree_height(tree);
 	size = binary_tree_size(tree);
-	nodes = 1;
 	for (i = height + 1; i > 0; i--)
 		nodes *= 2;
 	if (--nodes == size)
@@ -96,18 +95,19 @@ int binary_tree_is_complete(const binary_tree_t *tree)
 		return (0);
 	for (j = 0, max_leaves = 1; j < height; j++)
 		max_leaves *= 2;
-	/* go through leaves and check if all are to the left */
 	for (i = 1; i < leaves; i++)
 	{
 		if (i % 2 != 0)
 			nxt_leaf = nxt_leaf->parent->right;
 		else
 		{
-			j_limit = i <= max_leaves / 2 ? i / 4 : (max_leaves - i) / 4;
-			for (j = 0; j < j_limit + 2; j++)
+			j = i <= max_leaves / 2 ? i : max_leaves - i;
+			for (j_limit = 1; j != 1 && j % 2 == 0; j /= 2)
+				j_limit++;
+			for (j = 0; j < j_limit; j++)
 				nxt_leaf = nxt_leaf->parent;
 			nxt_leaf = nxt_leaf->right;
-			for (j = 0; j < j_limit + 1; j++)
+			for (j = 0; j < j_limit - 1; j++)
 				nxt_leaf = nxt_leaf->left;
 		}
 		if (!nxt_leaf)
